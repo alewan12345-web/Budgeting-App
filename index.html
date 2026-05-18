@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pac-Task Maze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="background-layer" aria-hidden="true">
+    <div class="maze-overlay"></div>
+    <div class="corner corner-a"></div>
+    <div class="corner corner-b"></div>
+    <div class="corner corner-c"></div>
+    <div class="corner corner-d"></div>
+  </div>
+
+  <header class="intro reveal">
+    <p class="player-badge">PLAYER: BRANDON KIM</p>
+    <h1>Pac-Task Maze</h1>
+    <p class="subtitle">Pick one dot. Clear one task. Keep the chase moving.</p>
+    <div class="chase-line" aria-hidden="true">
+      <span class="chase-pac"></span>
+      <span class="chase-dot"></span>
+      <span class="chase-dot"></span>
+      <span class="chase-dot"></span>
+      <span class="chase-ghost"></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel mission-panel reveal">
+      <h2>Maze Target</h2>
+      <div class="mission-card" id="missionCard">
+        <p class="mission-label">Current Dot</p>
+        <p class="mission-text" id="currentMission">Add tasks and tap "Start Chase"</p>
+        <p class="mission-reward" id="currentReward"></p>
+      </div>
+
+      <div class="mission-actions">
+        <button id="spinBtn" class="btn btn-primary">Start Chase</button>
+        <button id="completeBtn" class="btn btn-success" disabled>Clear Dot</button>
+        <button id="skipBtn" class="btn btn-neutral" disabled>Reroute</button>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card">
+          <p>Score</p>
+          <strong id="xpValue">0</strong>
+        </article>
+        <article class="stat-card">
+          <p>Stage</p>
+          <strong id="levelValue">1</strong>
+        </article>
+        <article class="stat-card">
+          <p>Combo</p>
+          <strong id="streakValue">0</strong>
+        </article>
+        <article class="stat-card">
+          <p>Cherries</p>
+          <strong id="ticketsValue">0</strong>
+        </article>
+      </div>
+
+      <div class="progress-wrap">
+        <p>Next stage progress</p>
+        <div class="progress-track">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+      </div>
+
+      <p id="statusMessage" class="status-message">Ready player. No indecision, just one dot.</p>
+    </section>
+
+    <section class="panel list-panel reveal">
+      <h2>Dot Queue</h2>
+      <form id="taskForm" class="task-form">
+        <label for="taskInput">Add a dot</label>
+        <div class="form-row">
+          <input id="taskInput" name="taskInput" maxlength="120" placeholder="Ex: Reply to 3 client emails" required>
+          <select id="rewardSelect" name="rewardSelect">
+            <option value="10">Small Dot (+10)</option>
+            <option value="20" selected>Power Pellet (+20)</option>
+            <option value="35">Fruit Bonus (+35)</option>
+          </select>
+          <button type="submit" class="btn btn-primary">Drop Dot</button>
+        </div>
+      </form>
+
+      <div class="queue-meta">
+        <p><span id="pendingCount">0</span> dots left</p>
+        <p><span id="doneCount">0</span> dots cleared</p>
+      </div>
+
+      <ul id="taskList" class="task-list"></ul>
+    </section>
+  </main>
+
+  <div id="confettiRoot" aria-hidden="true"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
