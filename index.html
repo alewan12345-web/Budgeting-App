@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget Crew HQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient-glow ambient-glow-left"></div>
+  <div class="ambient-glow ambient-glow-right"></div>
+
+  <header class="hero">
+    <p class="eyebrow">Budget Crew HQ</p>
+    <h1>Money Clarity for Every Personality</h1>
+    <p class="hero-copy">A playful dashboard for weekly spending, subscription dates, bill check-offs, and custom savings goals.</p>
+    <div class="hero-actions">
+      <button id="export-data" type="button" class="ghost-btn">Export Backup</button>
+      <label for="import-data" class="file-btn">Import Backup</label>
+      <input id="import-data" type="file" accept=".json,application/json" hidden>
+      <button id="undo-action" type="button" class="ghost-btn">Undo Last</button>
+      <button id="reset-data" type="button" class="ghost-btn">Reset All Data</button>
+    </div>
+    <p id="data-message" class="subtle-note" aria-live="polite"></p>
+  </header>
+
+  <main class="dashboard">
+    <section class="panel snapshot-panel" aria-labelledby="snapshot-title">
+      <div class="panel-head">
+        <h2 id="snapshot-title">Financial Snapshot</h2>
+        <span class="persona">Whole Crew</span>
+      </div>
+      <p class="panel-note">Quick read on where your money stands right now.</p>
+      <div class="metric-row snapshot-grid">
+        <article class="metric-card">
+          <p class="metric-label">Monthly Subscriptions</p>
+          <p id="snapshot-sub-total" class="metric-value">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Unpaid Bills</p>
+          <p id="snapshot-bill-total" class="metric-value">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Next Bill Due</p>
+          <p id="snapshot-next-bill" class="metric-value">None</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Goal Remaining</p>
+          <p id="snapshot-goal-left" class="metric-value">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Monthly Net</p>
+          <p id="snapshot-net" class="metric-value">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Spending Trend</p>
+          <p id="snapshot-spend-trend" class="metric-value">No data yet</p>
+        </article>
+      </div>
+      <div class="panel-controls split triple">
+        <label>
+          Activity Type
+          <select id="activity-filter">
+            <option value="all">All Activity</option>
+            <option value="weekly">Weekly Logs</option>
+            <option value="subscription">Subscriptions</option>
+            <option value="bill">Bills</option>
+            <option value="goal">Goal Fund</option>
+            <option value="income">Income</option>
+          </select>
+        </label>
+        <label>
+          Activity Sort
+          <select id="activity-sort">
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+          </select>
+        </label>
+        <label>
+          Search Activity
+          <input id="activity-search" type="text" placeholder="Search history">
+        </label>
+        <button id="clear-activity" type="button" class="ghost-btn">Clear Activity</button>
+      </div>
+      <ul id="activity-list" class="list compact"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="weekly-title">
+      <div class="panel-head">
+        <h2 id="weekly-title">Weekly Logger</h2>
+        <span class="persona">A Lovely Spender</span>
+      </div>
+      <p class="panel-note">Skip the daily grind and enter one total once a week.</p>
+      <div class="panel-controls split triple">
+        <label>
+          Sort Entries
+          <select id="weekly-sort">
+            <option value="date-desc">Newest Date</option>
+            <option value="date-asc">Oldest Date</option>
+            <option value="amount-desc">Highest Amount</option>
+            <option value="amount-asc">Lowest Amount</option>
+          </select>
+        </label>
+        <label>
+          Find Week
+          <input id="weekly-search" type="text" placeholder="Search date or amount">
+        </label>
+        <button id="clear-weekly" type="button" class="ghost-btn">Clear Weekly Logs</button>
+      </div>
+      <form id="weekly-form" class="form-row">
+        <label>
+          Week Ending
+          <input id="weekly-date" type="date" required>
+        </label>
+        <label>
+          Total Spent
+          <input id="weekly-amount" type="number" step="0.01" min="0" placeholder="0.00" required>
+        </label>
+        <button type="submit">Save Week</button>
+      </form>
+      <div class="metric-row">
+        <article class="metric-card">
+          <p class="metric-label">This Month</p>
+          <p id="monthly-spend" class="metric-value">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Weekly Average</p>
+          <p id="weekly-average" class="metric-value">$0.00</p>
+        </article>
+      </div>
+      <div class="panel-controls split triple">
+        <label>
+          Weekly Spending Cap
+          <input id="weekly-cap" type="number" min="0" step="0.01" placeholder="350.00">
+        </label>
+        <button id="set-weekly-cap" type="button">Set Cap</button>
+        <button id="clear-weekly-cap" type="button" class="ghost-btn">Clear Cap</button>
+      </div>
+      <p id="weekly-cap-status" class="subtle-note">No weekly cap set.</p>
+      <div>
+        <p class="subtle-note">Last 8 weeks</p>
+        <div id="weekly-chart" class="mini-chart"></div>
+      </div>
+      <ul id="weekly-list" class="list"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="calendar-title">
+      <div class="panel-head">
+        <h2 id="calendar-title">Subscription Calendar</h2>
+        <span class="persona">Show Watcher</span>
+      </div>
+      <p class="panel-note">See exactly when each app takes money.</p>
+      <div class="panel-controls split triple">
+        <label>
+          Sort
+          <select id="sub-sort">
+            <option value="day-asc">Charge Day (Early to Late)</option>
+            <option value="day-desc">Charge Day (Late to Early)</option>
+            <option value="name-asc">Name A-Z</option>
+            <option value="amount-desc">Highest Amount</option>
+          </select>
+        </label>
+        <label>
+          Find App
+          <input id="sub-filter" type="text" placeholder="Search subscriptions">
+        </label>
+        <button id="clear-subscriptions" type="button" class="ghost-btn">Clear Subscriptions</button>
+      </div>
+      <div class="calendar-top">
+        <button id="prev-month" type="button" class="ghost-btn" aria-label="Previous Month">&lt;</button>
+        <h3 id="calendar-month"></h3>
+        <button id="next-month" type="button" class="ghost-btn" aria-label="Next Month">&gt;</button>
+      </div>
+      <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+      <form id="subscription-form" class="form-row tight">
+        <label>
+          App
+          <input id="sub-name" type="text" placeholder="Hulu" required>
+        </label>
+        <label>
+          Day
+          <input id="sub-day" type="number" min="1" max="31" placeholder="8" required>
+        </label>
+        <label>
+          Amount
+          <input id="sub-amount" type="number" min="0" step="0.01" placeholder="12.99" required>
+        </label>
+        <button type="submit">Add Subscription</button>
+      </form>
+      <ul id="subscription-list" class="list compact"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="bills-title">
+      <div class="panel-head">
+        <h2 id="bills-title">Bill Checklist</h2>
+        <span class="persona">Billard</span>
+      </div>
+      <p class="panel-note">Track manual bills, due dates, and check off when paid.</p>
+      <div class="panel-controls split triple">
+        <label>
+          Sort
+          <select id="bill-sort">
+            <option value="due-asc">Due Soonest</option>
+            <option value="due-desc">Due Latest</option>
+            <option value="amount-desc">Highest Amount</option>
+            <option value="amount-asc">Lowest Amount</option>
+            <option value="status">Unpaid First</option>
+          </select>
+        </label>
+        <label>
+          Status
+          <select id="bill-filter">
+            <option value="all">All Bills</option>
+            <option value="unpaid">Unpaid Only</option>
+            <option value="paid">Paid Only</option>
+            <option value="overdue">Overdue</option>
+            <option value="due-soon">Due Within 3 Days</option>
+            <option value="upcoming">Upcoming</option>
+          </select>
+        </label>
+        <button id="clear-paid" type="button" class="ghost-btn">Clear Paid</button>
+      </div>
+      <div class="panel-controls">
+        <label>
+          Find Bill
+          <input id="bill-search" type="text" placeholder="Search bill names">
+        </label>
+      </div>
+      <p id="bill-summary" class="subtle-note"></p>
+      <form id="bill-form" class="form-row tight">
+        <label>
+          Bill Name
+          <input id="bill-name" type="text" placeholder="Water Bill" required>
+        </label>
+        <label>
+          Due Date
+          <input id="bill-date" type="date" required>
+        </label>
+        <label>
+          Amount
+          <input id="bill-amount" type="number" min="0" step="0.01" placeholder="85.00" required>
+        </label>
+        <button type="submit">Add Bill</button>
+      </form>
+      <ul id="bill-list" class="list"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="income-title">
+      <div class="panel-head">
+        <h2 id="income-title">Income Tracker</h2>
+        <span class="persona">Future You</span>
+      </div>
+      <p class="panel-note">Track paychecks and side income so you can see your true net flow.</p>
+      <div class="panel-controls split triple">
+        <label>
+          Sort Income
+          <select id="income-sort">
+            <option value="date-desc">Newest Date</option>
+            <option value="date-asc">Oldest Date</option>
+            <option value="amount-desc">Highest Amount</option>
+            <option value="amount-asc">Lowest Amount</option>
+          </select>
+        </label>
+        <label>
+          Find Source
+          <input id="income-filter" type="text" placeholder="Search source">
+        </label>
+        <button id="clear-income" type="button" class="ghost-btn">Clear Income</button>
+      </div>
+      <form id="income-form" class="form-row tight">
+        <label>
+          Date
+          <input id="income-date" type="date" required>
+        </label>
+        <label>
+          Source
+          <input id="income-source" type="text" placeholder="Paycheck" required>
+        </label>
+        <label>
+          Amount
+          <input id="income-amount" type="number" min="0" step="0.01" placeholder="500.00" required>
+        </label>
+        <button type="submit">Add Income</button>
+      </form>
+      <div class="metric-row">
+        <article class="metric-card">
+          <p class="metric-label">This Month Income</p>
+          <p id="monthly-income" class="metric-value">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Income Average</p>
+          <p id="income-average" class="metric-value">$0.00</p>
+        </article>
+      </div>
+      <ul id="income-list" class="list"></ul>
+    </section>
+
+    <section class="panel laptop-panel" aria-labelledby="goal-title">
+      <div class="panel-head">
+        <h2 id="goal-title">Goal Progress Bar</h2>
+        <span class="persona">College Student</span>
+      </div>
+      <p class="panel-note">Set anything you want to buy and track it visually.</p>
+      <form id="goal-form" class="form-row tight">
+        <label>
+          Thing to Buy
+          <input id="goal-item" type="text" placeholder="Gaming Laptop" required>
+        </label>
+        <label>
+          Goal Amount
+          <input id="goal-amount" type="number" min="0.01" step="0.01" placeholder="1200.00" required>
+        </label>
+        <button type="submit">Set Goal</button>
+      </form>
+      <p id="goal-status" class="laptop-status">$0.00 saved of $1,200.00</p>
+      <div id="goal-progress-shell" class="progress-shell" role="progressbar" aria-valuemin="0" aria-valuemax="1200" aria-valuenow="0" aria-label="Savings goal progress">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+      <p id="goal-message" class="laptop-message">Every dollar moved here gets you closer.</p>
+      <form id="savings-form" class="form-row tight">
+        <label>
+          Amount
+          <input id="savings-amount" type="number" min="0" step="0.01" placeholder="50.00" required>
+        </label>
+        <button type="submit">Add to Goal Fund</button>
+        <button id="spend-button" type="button" class="ghost-btn">Spent Some</button>
+      </form>
+      <div class="panel-controls split triple">
+        <label>
+          History Sort
+          <select id="history-sort">
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="amount-desc">Biggest First</option>
+            <option value="amount-asc">Smallest First</option>
+          </select>
+        </label>
+        <label>
+          History Type
+          <select id="history-filter">
+            <option value="all">All Activity</option>
+            <option value="add">Additions</option>
+            <option value="spend">Spending</option>
+            <option value="goal-update">Goal Updates</option>
+          </select>
+        </label>
+        <button id="clear-history" type="button" class="ghost-btn">Clear History</button>
+      </div>
+      <ul id="goal-history" class="list compact"></ul>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
