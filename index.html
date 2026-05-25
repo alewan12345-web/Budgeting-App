@@ -1,308 +1,192 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Northline Studio Hub</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <div class="brand">
-          <h1>Northline Studio Hub</h1>
-          <p>Ideas, schedules, and references in one workspace.</p>
-        </div>
-
-        <nav class="view-nav" aria-label="Views">
-          <button class="view-button active" data-view-target="board-view" type="button">
-            <span aria-hidden="true">&#9638;</span>
-            <span>Board</span>
-          </button>
-          <button class="view-button" data-view-target="schedule-view" type="button">
-            <span aria-hidden="true">&#9716;</span>
-            <span>Schedule</span>
-          </button>
-          <button class="view-button" data-view-target="library-view" type="button">
-            <span aria-hidden="true">&#9001;</span>
-            <span>Library</span>
-          </button>
-          <button class="view-button" data-view-target="archive-view" type="button">
-            <span aria-hidden="true">&#9635;</span>
-            <span>Archive</span>
-          </button>
-          <button class="view-button" data-view-target="activity-view" type="button">
-            <span aria-hidden="true">&#8801;</span>
-            <span>Activity</span>
-          </button>
-          <button class="view-button" data-view-target="whiteboard-view" type="button">
-            <span aria-hidden="true">&#10021;</span>
-            <span>Whiteboard</span>
-          </button>
-        </nav>
-
-        <section class="filters" aria-label="Filters">
-          <h2>Filter Items</h2>
-          <label class="field">
-            <span>Search</span>
-            <input id="search-input" type="search" placeholder="Find by title, notes, or tags" />
-          </label>
-          <label class="field">
-            <span>Source</span>
-            <select id="source-filter">
-              <option value="all">All sources</option>
-              <option value="email">Email</option>
-              <option value="call-note">Client Call Note</option>
-              <option value="screenshot">Screenshot / Visual Reference</option>
-              <option value="google-doc">Google Doc / Slide / Sheet</option>
-              <option value="idea">Studio Idea</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Owner</span>
-            <select id="owner-filter">
-              <option value="all">All team members</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Status</span>
-            <select id="status-filter">
-              <option value="all">All statuses</option>
-              <option value="Inbox">Inbox</option>
-              <option value="Planned">Planned</option>
-              <option value="Designing">Designing</option>
-              <option value="Client Review">Client Review</option>
-              <option value="Done">Done</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Priority</span>
-            <select id="priority-filter">
-              <option value="all">All priorities</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
-            </select>
-          </label>
-          <label class="field checkbox-field">
-            <input id="favorites-only" type="checkbox" />
-            <span>Favorites only</span>
-          </label>
-          <button id="clear-filters" type="button" class="ghost-button">
-            <span aria-hidden="true">&#8634;</span>
-            <span>Clear</span>
-          </button>
-        </section>
-
-        <section class="filters" aria-label="Data">
-          <h2>Data</h2>
-          <button id="export-json" type="button" class="ghost-button">Export JSON</button>
-          <label class="field">
-            <span>Import JSON</span>
-            <input id="import-json" type="file" accept="application/json" />
-          </label>
-          <button id="seed-demo" type="button" class="ghost-button">Load Demo Data</button>
-        </section>
-      </aside>
-
-      <main class="main-panel">
-        <header class="panel-header">
-          <div class="metrics" aria-live="polite">
-            <article class="metric">
-              <p class="metric-label">Open Items</p>
-              <p class="metric-value" id="open-count">0</p>
-            </article>
-            <article class="metric">
-              <p class="metric-label">Due This Week</p>
-              <p class="metric-value" id="week-count">0</p>
-            </article>
-            <article class="metric">
-              <p class="metric-label">Visual References</p>
-              <p class="metric-value" id="reference-count">0</p>
-            </article>
-            <article class="metric">
-              <p class="metric-label">Favorites</p>
-              <p class="metric-value" id="favorite-count">0</p>
-            </article>
-            <article class="metric">
-              <p class="metric-label">Archived</p>
-              <p class="metric-value" id="archive-count">0</p>
-            </article>
-            <article class="metric">
-              <p class="metric-label">Overdue</p>
-              <p class="metric-value" id="overdue-count">0</p>
-            </article>
-          </div>
-        </header>
-
-        <section class="bulk-panel">
-          <p id="selection-count">Selected: 0</p>
-          <div class="bulk-actions">
-            <button id="bulk-done" class="ghost-button" type="button">Mark Done</button>
-            <button id="bulk-archive" class="ghost-button" type="button">Archive</button>
-            <button id="bulk-owner" class="ghost-button" type="button">Reassign</button>
-            <button id="clear-selection" class="ghost-button" type="button">Clear Selection</button>
-          </div>
-        </section>
-
-        <section class="capture-panel" aria-label="Quick Capture">
-          <div class="capture-header">
-            <h2>Quick Capture</h2>
-            <p>Capture any thought, request, or reference while it is fresh.</p>
-          </div>
-          <form id="capture-form" class="capture-form">
-            <input type="hidden" id="item-id" />
-            <label class="field">
-              <span>Title</span>
-              <input id="item-title" type="text" maxlength="120" required />
-            </label>
-            <label class="field">
-              <span>Source</span>
-              <select id="item-source" required>
-                <option value="email">Email</option>
-                <option value="call-note">Client Call Note</option>
-                <option value="screenshot">Screenshot / Visual Reference</option>
-                <option value="google-doc">Google Doc / Slide / Sheet</option>
-                <option value="idea">Studio Idea</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Project</span>
-              <input id="item-project" type="text" maxlength="80" placeholder="Example: Atlas Packaging" />
-            </label>
-            <label class="field">
-              <span>Owner</span>
-              <select id="item-owner" required></select>
-            </label>
-            <label class="field">
-              <span>Status</span>
-              <select id="item-status">
-                <option value="Inbox">Inbox</option>
-                <option value="Planned">Planned</option>
-                <option value="Designing">Designing</option>
-                <option value="Client Review">Client Review</option>
-                <option value="Done">Done</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Priority</span>
-              <select id="item-priority">
-                <option value="Low">Low</option>
-                <option value="Medium" selected>Medium</option>
-                <option value="High">High</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Due Date</span>
-              <input id="item-due-date" type="date" />
-            </label>
-            <label class="field">
-              <span>Reminder</span>
-              <input id="item-reminder-date" type="date" />
-            </label>
-            <label class="field">
-              <span>Effort (hours)</span>
-              <input id="item-effort" type="number" min="0" max="200" step="0.5" value="1" />
-            </label>
-            <label class="field">
-              <span>Reference Link</span>
-              <input id="item-reference" type="url" placeholder="https://..." />
-            </label>
-            <label class="field field-wide">
-              <span>Screenshot</span>
-              <input id="item-image" type="file" accept="image/*" />
-            </label>
-            <label class="field field-wide">
-              <span>Tags</span>
-              <input id="item-tags" type="text" maxlength="80" placeholder="brand, homepage, motion" />
-            </label>
-            <label class="field field-wide">
-              <span>Notes</span>
-              <textarea id="item-notes" rows="3" maxlength="1000"></textarea>
-            </label>
-            <label class="field field-wide">
-              <span>Checklist (one item per line)</span>
-              <textarea id="item-checklist" rows="3" maxlength="1200"></textarea>
-            </label>
-            <label class="field checkbox-field">
-              <input id="item-favorite" type="checkbox" />
-              <span>Favorite</span>
-            </label>
-            <label class="field checkbox-field">
-              <input id="item-archived" type="checkbox" />
-              <span>Archived</span>
-            </label>
-            <div class="form-actions">
-              <button id="save-button" class="primary-button" type="submit">
-                <span aria-hidden="true">+</span>
-                <span>Add Item</span>
-              </button>
-              <button id="cancel-edit" class="ghost-button hidden" type="button">
-                <span aria-hidden="true">&times;</span>
-                <span>Cancel Edit</span>
-              </button>
-            </div>
-          </form>
-        </section>
-
-        <section id="board-view" class="view-panel active" aria-label="Board View"></section>
-        <section id="schedule-view" class="view-panel" aria-label="Schedule View"></section>
-        <section id="library-view" class="view-panel" aria-label="Library View"></section>
-        <section id="archive-view" class="view-panel" aria-label="Archive View"></section>
-        <section id="activity-view" class="view-panel" aria-label="Activity View"></section>
-        <section id="whiteboard-view" class="view-panel" aria-label="Whiteboard View">
-          <div class="whiteboard-toolbar">
-            <button id="wb-pen" class="ghost-button" type="button">Pen</button>
-            <button id="wb-eraser" class="ghost-button" type="button">Eraser</button>
-            <label class="field">
-              <span>Color</span>
-              <input id="wb-color" type="color" value="#1f2937" />
-            </label>
-            <label class="field">
-              <span>Size</span>
-              <input id="wb-size" type="range" min="1" max="24" value="3" />
-            </label>
-            <button id="wb-clear" class="ghost-button" type="button">Clear Canvas</button>
-            <button id="wb-add-note" class="ghost-button" type="button">Add Sticky</button>
-          </div>
-          <div class="whiteboard-stage">
-            <canvas id="whiteboard-canvas" width="1200" height="620"></canvas>
-            <div id="sticky-layer" class="sticky-layer"></div>
-          </div>
-        </section>
-      </main>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roblox Build Day | School Partnership Program</title>
+  <meta name="description" content="Roblox Build Day helps students learn coding, teamwork, storytelling, and entrepreneurship through a school-friendly build workshop.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a href="#home" class="brand" aria-label="Roblox Build Day home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Roblox Build Day</span>
+      </a>
+      <nav class="nav">
+        <a href="#why">Why Schools</a>
+        <a href="#schedule">Schedule</a>
+        <a href="#budget">Budget</a>
+      </nav>
+      <a href="#partner" class="btn btn-ghost">
+        <i data-lucide="school" aria-hidden="true"></i>
+        <span>Become a Partner School</span>
+      </a>
     </div>
+  </header>
 
-    <template id="item-card-template">
-      <article class="item-card">
-        <label class="card-select">
-          <input type="checkbox" class="select-item" />
-          <span>Select</span>
-        </label>
-        <header>
-          <h3 class="item-title"></h3>
-          <p class="item-meta"></p>
-        </header>
-        <p class="item-notes"></p>
-        <div class="item-chips"></div>
-        <div class="item-link-wrap"></div>
-        <div class="card-actions">
-          <button type="button" class="icon-button move-back" title="Move back">
-            <span aria-hidden="true">&larr;</span>
-          </button>
-          <button type="button" class="icon-button move-forward" title="Move forward">
-            <span aria-hidden="true">&rarr;</span>
-          </button>
-          <button type="button" class="icon-button edit-item" title="Edit item">
-            <span aria-hidden="true">&#9998;</span>
-          </button>
-          <button type="button" class="icon-button delete-item" title="Delete item">
-            <span aria-hidden="true">&#128465;</span>
-          </button>
+  <main id="home">
+    <section class="hero">
+      <img
+        class="hero-bg"
+        src="https://images.pexels.com/photos/7743253/pexels-photo-7743253.jpeg?auto=compress&cs=tinysrgb&w=2000"
+        alt="Students building a digital project on an interactive screen"
+      >
+      <div class="hero-overlay"></div>
+      <div class="container hero-content">
+        <p class="eyebrow">Sunday to Saturday, starts at 10:00 AM</p>
+        <h1>Turn Roblox Players Into Roblox Creators</h1>
+        <p class="hero-copy">
+          Build Day is a school-friendly workshop where students learn Lua, game design,
+          teamwork, and business thinking by creating their own playable experiences.
+        </p>
+        <div class="hero-actions">
+          <a href="#partner" class="btn btn-primary">
+            <i data-lucide="rocket" aria-hidden="true"></i>
+            <span>Reserve School Slots</span>
+          </a>
+          <a href="#schedule" class="btn btn-secondary">
+            <i data-lucide="calendar-days" aria-hidden="true"></i>
+            <span>View Full Program</span>
+          </a>
         </div>
-      </article>
-    </template>
+        <ul class="hero-points">
+          <li><i data-lucide="check-circle-2" aria-hidden="true"></i> No recreational gameplay blocks</li>
+          <li><i data-lucide="check-circle-2" aria-hidden="true"></i> Daily breakfast, lunch, and dinner included</li>
+          <li><i data-lucide="check-circle-2" aria-hidden="true"></i> Optional hotel stay: $10 student fee</li>
+        </ul>
+      </div>
+    </section>
 
-    <script src="app.js"></script>
-  </body>
+    <section id="why" class="section section-light">
+      <div class="container">
+        <h2>Why Schools Say Yes to Build Day</h2>
+        <p class="section-lead">
+          Students do not just learn to code. They learn how to plan, build, test, pitch, and improve ideas with a team.
+        </p>
+        <div class="benefit-grid">
+          <article class="benefit-card">
+            <h3>Academic Skill Growth</h3>
+            <p>Students practice computational thinking, logic, debugging, and clear written communication.</p>
+          </article>
+          <article class="benefit-card">
+            <h3>Teamwork & Leadership</h3>
+            <p>From Day 3 onward, teams co-own a major project and rotate roles across design, code, QA, and presentation.</p>
+          </article>
+          <article class="benefit-card">
+            <h3>Entrepreneur Mindset</h3>
+            <p>Learners build products for real users, collect feedback, and think like founders solving real problems.</p>
+          </article>
+          <article class="benefit-card">
+            <h3>Safe School Structure</h3>
+            <p>Build Day focuses on creation, not free-play gaming. Every session is supervised and goal-driven.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-media">
+      <div class="container media-grid">
+        <img src="https://images.pexels.com/photos/7869084/pexels-photo-7869084.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="Students building a robotics-style project together">
+        <img src="https://images.pexels.com/photos/5212695/pexels-photo-5212695.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="Students collaborating with laptops in a classroom">
+        <img src="https://images.pexels.com/photos/7742816/pexels-photo-7742816.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="Students and teacher working on coding in a computer lab">
+      </div>
+    </section>
+
+    <section id="schedule" class="section section-dark">
+      <div class="container">
+        <h2>Build Week Schedule</h2>
+        <p class="section-lead">
+          The program runs Sunday through Saturday. Every day begins at 10:00 AM and follows a Morning, Noon, and Evening rhythm.
+        </p>
+        <div id="dayTabs" class="day-tabs" role="tablist" aria-label="Build week days"></div>
+        <article class="day-plan" aria-live="polite">
+          <header class="day-plan-head">
+            <h3 id="dayTitle">Sunday</h3>
+            <p id="dayFocus"></p>
+          </header>
+          <div class="session-grid">
+            <section class="session">
+              <h4>Morning</h4>
+              <p id="morningPlan"></p>
+            </section>
+            <section class="session">
+              <h4>Noon</h4>
+              <p id="noonPlan"></p>
+            </section>
+            <section class="session">
+              <h4>Evening</h4>
+              <p id="eveningPlan"></p>
+            </section>
+          </div>
+          <p id="dayMilestone" class="milestone"></p>
+        </article>
+      </div>
+    </section>
+
+    <section id="budget" class="section section-light">
+      <div class="container">
+        <h2>School-Friendly Cost Planner</h2>
+        <p class="section-lead">
+          Build Day is designed to stay under school-provided budgets while still delivering meals, mentorship, and materials.
+        </p>
+        <div class="budget-grid">
+          <div class="control">
+            <label for="students">Students</label>
+            <input id="students" type="range" min="20" max="300" step="5" value="120">
+            <p><span id="studentsOut">120</span> students</p>
+          </div>
+          <div class="control">
+            <label for="budgetPerStudent">School Budget (per student)</label>
+            <input id="budgetPerStudent" type="range" min="40" max="150" step="1" value="85">
+            <p>$<span id="budgetOut">85</span> per student</p>
+          </div>
+          <div class="control">
+            <label for="hotelRate">Students Choosing Hotel ($10 fee)</label>
+            <input id="hotelRate" type="range" min="0" max="100" step="5" value="35">
+            <p><span id="hotelOut">35</span>% participation</p>
+          </div>
+        </div>
+        <div class="budget-results">
+          <p><strong>Estimated Cost Per Student:</strong> <span id="costPerStudent">$0</span></p>
+          <p><strong>School Budget Per Student:</strong> <span id="budgetPerStudentText">$0</span></p>
+          <p id="budgetStatus" class="budget-status"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="partner" class="section section-cta">
+      <img
+        class="cta-bg"
+        src="https://images.pexels.com/photos/7743256/pexels-photo-7743256.jpeg?auto=compress&cs=tinysrgb&w=2000"
+        alt="Students presenting a shared project in a classroom"
+      >
+      <div class="cta-overlay"></div>
+      <div class="container cta-content">
+        <h2>Let Students Build the Future, Not Just Play It</h2>
+        <p>
+          Partner schools give students a practical path into computer science, design, communication, and entrepreneurship.
+          Build Day gives educators a structured, supervised, and budget-conscious model they can trust.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="mailto:buildday@roblox.com?subject=Build%20Day%20School%20Partnership">
+            <i data-lucide="mail" aria-hidden="true"></i>
+            <span>Email Partnership Team</span>
+          </a>
+          <a class="btn btn-secondary" href="#home">
+            <i data-lucide="arrow-up-right" aria-hidden="true"></i>
+            <span>Back to Top</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="script.js"></script>
+</body>
 </html>
